@@ -1,0 +1,40 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+}
+
+group = 'dev.czechitas.java1'
+version = '1.0.0'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation("com.miglayout:miglayout-swing:5.0")
+    implementation("net.sevecek:sevecek-net-utils:0.9.1")
+}
+
+publishing {
+    publications {
+        library(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            name = "czechitas"
+            url = uri("https://mvnrepo.czechitas.dev/maven2/")
+            credentials {
+                username = project.findProperty("czechitas.repo.username")
+                password = project.findProperty("czechitas.repo.password")
+            }
+        }
+    }
+}
