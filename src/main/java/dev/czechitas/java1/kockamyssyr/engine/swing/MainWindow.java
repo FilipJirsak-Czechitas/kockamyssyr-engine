@@ -19,14 +19,10 @@ public class MainWindow extends JFrame {
     private JPanel contentPane;
     private JKeyboard keyboard;
     private JLabel message;
+    private JPanel gamepad;
 
-    private JButton saveStateButton;
-    private JButton loadStateButton;
-
-    private MainWindow(String title) {
-        super(title);
-        initComponents();
-    }
+    private JButton saveButton;
+    private JButton restoreButton;
 
     public synchronized static MainWindow getInstance() {
         if (instance == null) {
@@ -40,6 +36,11 @@ public class MainWindow extends JFrame {
             instance.setVisible(true);
         }
         return instance;
+    }
+
+    private MainWindow(String title) {
+        super(title);
+        initComponents();
     }
 
     private static GraphicsConfiguration getScreenConfiguration() {
@@ -56,8 +57,10 @@ public class MainWindow extends JFrame {
             }
         });
 
+        gamepad = initGamepad();
+
         contentPane.setLayout(new BorderLayout());
-        contentPane.add(initGamepad(), BorderLayout.CENTER);
+        contentPane.add(gamepad, BorderLayout.CENTER);
         contentPane.add(initButtonBar(), BorderLayout.SOUTH);
 
         keyboard = new JKeyboard();
@@ -94,8 +97,7 @@ public class MainWindow extends JFrame {
         migLayoutManager = new MigLayout(
                 "insets 0,hidemode 3,gap 0px",
                 singleCell.repeat(20),
-                singleCell.repeat(12)
-        );
+                singleCell.repeat(12));
         contentPane.setLayout(migLayoutManager);
         contentPane.setBackground(this.getBackground());
 
@@ -108,14 +110,13 @@ public class MainWindow extends JFrame {
         return contentPane;
     }
 
-
     private JPanel initButtonBar() {
         JPanel bar = new JPanel();
 
-        saveStateButton = new JButton("Save");
-        loadStateButton = new JButton("Restore");
-        bar.add(saveStateButton);
-        bar.add(loadStateButton);
+        saveButton = new JButton("Save");
+        restoreButton = new JButton("Restore");
+        bar.add(saveButton);
+        bar.add(restoreButton);
         return bar;
     }
 
@@ -136,6 +137,10 @@ public class MainWindow extends JFrame {
         return keyboard;
     }
 
+    public JPanel getGamepad() {
+        return gamepad;
+    }
+
     public void showMessage(String text) {
         message.setText(text);
         Dimension size = message.getPreferredSize();
@@ -150,16 +155,16 @@ public class MainWindow extends JFrame {
      * @param onSave
      */
     public void onSave(Runnable onSave) {
-        saveStateButton.addActionListener((event) -> onSave.run());
+        saveButton.addActionListener((event) -> onSave.run());
     }
 
     /**
-     * Zavolá příslušnou metodu v okamžiku, kdy uživatel klikne na tlačítko Load.
+     * Zavolá příslušnou metodu v okamžiku, kdy uživatel klikne na tlačítko Restore.
      *
-     * @param onLoad
+     * @param onRestore
      */
-    public void onLoad(Runnable onLoad) {
-        loadStateButton.addActionListener((event) -> onLoad.run());
+    public void onLoad(Runnable onRestore) {
+        restoreButton.addActionListener((event) -> onRestore.run());
     }
 
 }

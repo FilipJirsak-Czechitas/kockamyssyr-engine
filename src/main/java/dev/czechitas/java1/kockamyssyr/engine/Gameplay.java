@@ -4,37 +4,36 @@ import dev.czechitas.java1.kockamyssyr.api.*;
 import dev.czechitas.java1.kockamyssyr.engine.swing.MainWindow;
 import dev.czechitas.java1.kockamyssyr.engine.swing.Utils;
 import net.sevecek.util.ThreadUtils;
+import static dev.czechitas.java1.kockamyssyr.api.PlayerType.*;
+import static dev.czechitas.java1.kockamyssyr.api.CollisionType.*;
 
 import javax.swing.*;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 
-import static dev.czechitas.java1.kockamyssyr.api.CollisionType.*;
-import static dev.czechitas.java1.kockamyssyr.api.PlayerType.FOOD;
-import static dev.czechitas.java1.kockamyssyr.api.PlayerType.GOOD;
 
 public class Gameplay {
 
     private static Gameplay instance = new Gameplay();
-    private List<Player> allPlayers = new CopyOnWriteArrayList<>();
-    private List<Figure> allPassiveFigures = new CopyOnWriteArrayList<>();
 
-    private ExecutorService animationWorker = Executors.newCachedThreadPool();
-    private Map<Brain, Future<?>> brainThreads = new ConcurrentHashMap<>();
-    private Icon explosionSprite;
-
-    private boolean gameEnded = false;
-    private boolean gameRunning = true;
+    public static Gameplay getInstance() {
+        return instance;
+    }
 
     private Gameplay() {
         explosionSprite = Utils.loadSprite("explosion.png");
         MainWindow.getInstance().addWindowClosingListener(this::stop);
     }
 
-    public static Gameplay getInstance() {
-        return instance;
-    }
+    private List<Player> allPlayers = new CopyOnWriteArrayList<>();
+    private List<Figure> allPassiveFigures = new CopyOnWriteArrayList<>();
+    private ExecutorService animationWorker = Executors.newCachedThreadPool();
+    private Map<Brain, Future<?>> brainThreads = new ConcurrentHashMap<>();
+    private Icon explosionSprite;
+
+    private boolean gameEnded = false;
+    private boolean gameRunning = true;
 
     public synchronized void addPassiveFigure(Figure f) {
         allPassiveFigures.add(f);
@@ -66,14 +65,14 @@ public class Gameplay {
             Utils.invokeLater(() -> {
                 explosionComp.setSize(explosionSprite.getIconWidth(), explosionSprite.getIconHeight());
                 explosionComp.setLocation(sprite.getLocation());
-                MainWindow.getInstance().add(explosionComp, "external");
-                MainWindow.getInstance().repaint();
+                MainWindow.getInstance().getGamepad().add(explosionComp, "external");
+                MainWindow.getInstance().getGamepad().repaint();
             });
             ThreadUtils.sleep(800L);
             Utils.invokeLater(() -> {
-                MainWindow.getInstance().remove(explosionComp);
-                MainWindow.getInstance().revalidate();
-                MainWindow.getInstance().repaint();
+                MainWindow.getInstance().getGamepad().remove(explosionComp);
+                MainWindow.getInstance().getGamepad().revalidate();
+                MainWindow.getInstance().getGamepad().repaint();
             });
         });
     }
@@ -91,6 +90,13 @@ public class Gameplay {
         brainThreads.put(brain, task);
     }
 
+    public synchronized void startMovingAll() {
+        for (Player player : allPlayers) {
+            startMoving(player);
+        }
+        gameRunning = true;
+    }
+
     public synchronized void stopMoving(Player player) {
         Brain brain = player.getBrain();
         if (brain == null) return;
@@ -100,20 +106,12 @@ public class Gameplay {
         }
     }
 
-    public synchronized void startMovingAll() {
-        for (Player player : allPlayers) {
-            startMoving(player);
-        }
-        gameRunning = true;
-    }
-
     public synchronized void stopMovingAll() {
         gameRunning = false;
         for (Player player : allPlayers) {
             stopMoving(player);
         }
     }
-
     public synchronized CollisionType detectCollisionWithAnyOtherFigure(Figure thisFigure) {
         JLabel sprite = thisFigure.getSprite();
         boolean isThisStackable = thisFigure instanceof Stackable;
@@ -159,6 +157,7 @@ public class Gameplay {
         for (Player player : allPlayers) {
             if (player.getType() == FOOD) {
                 existPlayerBeingHunted = true;
+                break;
             }
         }
 
@@ -174,6 +173,7 @@ public class Gameplay {
         for (Player player : allPlayers) {
             if (player.getType() == PlayerType.GOOD) {
                 existGoodPlayer = true;
+                break;
             }
         }
 
