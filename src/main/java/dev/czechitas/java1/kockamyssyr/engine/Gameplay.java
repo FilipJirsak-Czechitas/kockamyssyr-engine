@@ -20,10 +20,12 @@ public class Gameplay {
     private List<Player> allPlayers = new CopyOnWriteArrayList<>();
     private List<Figure> allPassiveFigures = new CopyOnWriteArrayList<>();
 
-    //-------------------------------------------------------------------------
     private ExecutorService animationWorker = Executors.newCachedThreadPool();
     private Map<Brain, Future<?>> brainThreads = new ConcurrentHashMap<>();
     private Icon explosionSprite;
+
+    private boolean gameEnded = false;
+    private boolean gameRunning = true;
 
     private Gameplay() {
         explosionSprite = Utils.loadSprite("explosion.png");
@@ -33,8 +35,6 @@ public class Gameplay {
     public static Gameplay getInstance() {
         return instance;
     }
-
-    //-------------------------------------------------------------------------
 
     public synchronized void addPassiveFigure(Figure f) {
         allPassiveFigures.add(f);
@@ -100,6 +100,20 @@ public class Gameplay {
         }
     }
 
+    public synchronized void startMovingAll() {
+        for (Player player : allPlayers) {
+            startMoving(player);
+        }
+        gameRunning = true;
+    }
+
+    public synchronized void stopMovingAll() {
+        gameRunning = false;
+        for (Player player : allPlayers) {
+            stopMoving(player);
+        }
+    }
+
     public synchronized CollisionType detectCollisionWithAnyOtherFigure(Figure thisFigure) {
         JLabel sprite = thisFigure.getSprite();
         boolean isThisStackable = thisFigure instanceof Stackable;
@@ -149,10 +163,8 @@ public class Gameplay {
         }
 
         if (!existPlayerBeingHunted) {
-            for (Player player : allPlayers) {
-                stopMoving(player);
-            }
-            // TODO
+            stopMovingAll();
+            this.gameEnded = true;
             showMessage("Mouse wins!");
         }
     }
@@ -166,10 +178,8 @@ public class Gameplay {
         }
 
         if (!existGoodPlayer) {
-            for (Player player : allPlayers) {
-                stopMoving(player);
-            }
-            // TODO
+            stopMovingAll();
+            this.gameEnded = true;
             showMessage("Cat wins!");
         }
     }
@@ -183,5 +193,13 @@ public class Gameplay {
     public synchronized void stop() {
         animationWorker.shutdownNow();
         Thread.currentThread().getThreadGroup().interrupt();
+    }
+
+    public boolean isGameEnded() {
+        return gameEnded;
+    }
+
+    public boolean isGameRunning() {
+        return !gameEnded && gameRunning;
     }
 }

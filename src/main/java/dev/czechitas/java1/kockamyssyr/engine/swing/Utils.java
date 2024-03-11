@@ -105,7 +105,7 @@ public class Utils {
         int dy = component2.getY() + component2.getHeight();
 
         if (bx > cx && by > cy
-                && ax < dx && ay < dy) {
+            && ax < dx && ay < dy) {
             return true;
         } else {
             return false;

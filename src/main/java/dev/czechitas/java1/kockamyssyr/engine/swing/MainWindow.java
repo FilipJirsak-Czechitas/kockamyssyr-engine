@@ -20,6 +20,9 @@ public class MainWindow extends JFrame {
     private JKeyboard keyboard;
     private JLabel message;
 
+    private JButton saveStateButton;
+    private JButton loadStateButton;
+
     private MainWindow(String title) {
         super(title);
         initComponents();
@@ -53,31 +56,9 @@ public class MainWindow extends JFrame {
             }
         });
 
-        String singleCell = "[50px:50px:50px,fill]";
-        String rowConstraints = "";
-        for (int i = 0; i < 12; i++) {
-            rowConstraints += singleCell;
-        }
-        String columnConstraints = "";
-        for (int i = 0; i < 20; i++) {
-            columnConstraints += singleCell;
-        }
-
-        migLayoutManager = new MigLayout(
-                "insets 0,hidemode 3,gap 0px",
-                // columns
-                columnConstraints,
-                // rows
-                rowConstraints);
-        contentPane.setLayout(migLayoutManager);
-        contentPane = (JPanel) this.getContentPane();
-        contentPane.setBackground(this.getBackground());
-
-        message = new JLabel();
-        Font font = message.getFont().deriveFont(50.0F);
-        message.setFont(font);
-        contentPane.add(message, "pos 50% 50%");
-        contentPane.setComponentZOrder(message, 0);
+        contentPane.setLayout(new BorderLayout());
+        contentPane.add(initGamepad(), BorderLayout.CENTER);
+        contentPane.add(initButtonBar(), BorderLayout.SOUTH);
 
         keyboard = new JKeyboard();
 
@@ -100,8 +81,42 @@ public class MainWindow extends JFrame {
             } catch (NumberFormatException e) {
                 System.err.printf("Chybný formát proměnné prostředí SCREEN: '%s'.", screen).println();
             }
+            setLocationRelativeTo(null);
         }
         setLocationRelativeTo(anchor);
+    }
+
+    private JPanel initGamepad() {
+        JPanel contentPane = new JPanel();
+
+        String singleCell = "[50px:50px:50px,fill]";
+
+        migLayoutManager = new MigLayout(
+                "insets 0,hidemode 3,gap 0px",
+                singleCell.repeat(20),
+                singleCell.repeat(12)
+        );
+        contentPane.setLayout(migLayoutManager);
+        contentPane.setBackground(this.getBackground());
+
+        message = new JLabel();
+        Font font = message.getFont().deriveFont(50.0F);
+        message.setFont(font);
+        contentPane.add(message, "pos 50% 50%");
+        contentPane.setComponentZOrder(message, 0);
+
+        return contentPane;
+    }
+
+
+    private JPanel initButtonBar() {
+        JPanel bar = new JPanel();
+
+        saveStateButton = new JButton("Save");
+        loadStateButton = new JButton("Restore");
+        bar.add(saveStateButton);
+        bar.add(loadStateButton);
+        return bar;
     }
 
     private void onWindowResized(ComponentEvent evt) {
@@ -129,8 +144,22 @@ public class MainWindow extends JFrame {
         repaint();
     }
 
-//    public void updateSpriteLocation(JLabel sprite) {
-//        migLayoutManager.setComponentConstraints(sprite, "pos " + sprite.getX() + " " + sprite.getY());
-//        contentPane.revalidate();
-//    }
+    /**
+     * Zavolá příslušnou metodu v okamžiku, kdy uživatel klikne na tlačítko Save.
+     *
+     * @param onSave
+     */
+    public void onSave(Runnable onSave) {
+        saveStateButton.addActionListener((event) -> onSave.run());
+    }
+
+    /**
+     * Zavolá příslušnou metodu v okamžiku, kdy uživatel klikne na tlačítko Load.
+     *
+     * @param onLoad
+     */
+    public void onLoad(Runnable onLoad) {
+        loadStateButton.addActionListener((event) -> onLoad.run());
+    }
+
 }

@@ -36,6 +36,7 @@ public abstract class Player extends Figure {
 
     /**
      * Vrací „mozek“ postavy, který ji právě ovládá.
+     *
      * @return
      */
     public Brain getBrain() {
@@ -44,6 +45,7 @@ public abstract class Player extends Figure {
 
     /**
      * Dá postavě „mozek“, který postavu může ovládat.
+     *
      * @param brain
      */
     public void setBrain(Brain brain) {
@@ -56,6 +58,7 @@ public abstract class Player extends Figure {
 
     /**
      * Vrací aktuální orientaci postavy (kterým směrem je otočená).
+     *
      * @return
      */
     public PlayerOrientation getOrientation() {
@@ -76,6 +79,7 @@ public abstract class Player extends Figure {
 
     /**
      * Posune herní postavu o zadaný počet bodů vpřed.
+     *
      * @param pixels
      */
     public void moveForward(int pixels) {
@@ -161,6 +165,7 @@ public abstract class Player extends Figure {
 
     /**
      * Zjistí, zda se postava může posunout vpřed (zda nestojí před překážkou nabo na okraji herní plochy).
+     *
      * @return
      */
     public boolean isPossibleToMoveForward() {
@@ -184,8 +189,8 @@ public abstract class Player extends Figure {
             location.y = location.y - location.y % 5;
 
             if (location.x < 0 || location.y < 0
-                    || location.x + sprite.getWidth() > sprite.getParent().getWidth()
-                    || location.y + sprite.getHeight() > sprite.getParent().getHeight()) {
+                || location.x + sprite.getWidth() > sprite.getParent().getWidth()
+                || location.y + sprite.getHeight() > sprite.getParent().getHeight()) {
                 return false;
             }
 
