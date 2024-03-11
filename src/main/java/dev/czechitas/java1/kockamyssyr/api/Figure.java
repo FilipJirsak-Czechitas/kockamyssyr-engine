@@ -30,7 +30,7 @@ public abstract class Figure {
             sprite = new JLabel(picture);
             sprite.setLocation(x, y);
             sprite.setSize(picture.getIconWidth(), picture.getIconHeight());
-            Container mainWindowContentPane = MainWindow.getInstance().getContentPane();
+            Container mainWindowContentPane = MainWindow.getInstance().getGamepad();
             mainWindowContentPane.add(sprite, "external");
 
             moveElsewhereIfColliding();
@@ -39,7 +39,7 @@ public abstract class Figure {
     }
 
     private void moveElsewhereIfColliding() {
-        Container mainWindowContentPane = MainWindow.getInstance().getContentPane();
+        Container mainWindowContentPane = MainWindow.getInstance().getGamepad();
         Gameplay gameplay = Gameplay.getInstance();
         int x = sprite.getX();
         int y = sprite.getY();
@@ -148,7 +148,7 @@ public abstract class Figure {
     public void remove() {
         Utils.invokeAndWait(() -> {
             isAlive = false;
-            Container contentPane = MainWindow.getInstance().getContentPane();
+            Container contentPane = MainWindow.getInstance().getGamepad();
             sprite.setVisible(false);
             contentPane.repaint();
         });
