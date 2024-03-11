@@ -145,6 +145,24 @@ public abstract class Figure {
         return isAlive;
     }
 
+    /**
+     * Place figure on specified location on the board.
+     *
+     * @param point
+     */
+    public void setLocation(Point point) {
+        Utils.invokeAndWait(() -> sprite.setLocation(point));
+    }
+
+    /**
+     * Get current location of figure on the board.
+     *
+     * @return
+     */
+    public Point getLocation() {
+        return Utils.invokeAndWait(() -> sprite.getLocation());
+    }
+
     public void remove() {
         Utils.invokeAndWait(() -> {
             isAlive = false;
